@@ -42,12 +42,11 @@ Baseline for comparison, 3D U-Net (EXP-0001): mean Dice 0.765. nnU-Net scored hi
 ## Where things are
 
 - Scores and comparison: `docs/TRAINING_NNUNET.md`, `results/M2-T04/`
+- Weights and predictions (Drive): `BrainMRI_Data/runs/M2-T04_nnunet/`
+- How to run it: `inference_config.yaml`; checksum and source: `manifest.json`
   
 ## Approval (M2-T06)
 
 | Name | Role | OK (date) |
 | --- | --- | --- |
 | | | |
-
-- Weights and predictions (Drive): `BrainMRI_Data/runs/M2-T04_nnunet/`
-- How to run it: `inference_config.yaml`; checksum and source: `manifest.json`
