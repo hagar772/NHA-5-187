@@ -186,67 +186,74 @@ def _default_root() -> str:
     return str(project_root / "data" / "processed")
 
 
-st.set_page_config(page_title="Brain MRI Viewer — M2-T05", layout="wide")
-st.title("Brain MRI Viewer — M2-T05")
-st.caption("MRI slice viewer with the existing tumor segmentation mask overlaid. Decision-support/research prototype only.")
+def main():
+    """The Streamlit page. Runs only when launched with `streamlit run apps/m2_t05_viewer.py`,
+    so the helper functions above can be imported (e.g. by tests) without starting the page."""
+    st.set_page_config(page_title="Brain MRI Viewer — M2-T05", layout="wide")
+    st.title("Brain MRI Viewer — M2-T05")
+    st.caption("MRI slice viewer with the existing tumor segmentation mask overlaid. Decision-support/research prototype only.")
 
-with st.sidebar:
-    st.header("Viewer settings")
-    root = st.text_input("Processed data root", value=_default_root(), help="Folder containing dataset/subject/timepoint folders.")
-    opacity = st.slider("Mask opacity", min_value=0.10, max_value=0.80, value=0.45, step=0.05)
-    show_mask = st.checkbox("Show tumor mask", value=True)
+    with st.sidebar:
+        st.header("Viewer settings")
+        root = st.text_input("Processed data root", value=_default_root(), help="Folder containing dataset/subject/timepoint folders.")
+        opacity = st.slider("Mask opacity", min_value=0.10, max_value=0.80, value=0.45, step=0.05)
+        show_mask = st.checkbox("Show tumor mask", value=True)
 
-cases = discover_cases(root)
-if not cases:
-    st.error(
-        "No complete cleaned cases were found. Expected files: "
-        "<root>/<dataset>/<subject>/<timepoint>/{t1,t1ce,t2,flair,seg}.nii.gz"
-    )
-    st.info(
-        "This viewer does not create the cleaned data. M2-T05 depends on M1-T04. "
-        "Point 'Processed data root' to the folder that contains the cleaned NIfTI files. "
-        "The viewer can search nested folders automatically."
-    )
-    if Path(root).is_dir():
-        segs = list(Path(root).rglob("seg.nii.gz"))
-        if segs:
-            st.warning(
-                f"Found {len(segs)} seg.nii.gz file(s), but none had all five required files "
-                "(t1, t1ce, t2, flair, seg) in the same folder."
-            )
-            st.code("\n".join(str(p.parent) for p in segs[:10]))
+    cases = discover_cases(root)
+    if not cases:
+        st.error(
+            "No complete cleaned cases were found. Expected files: "
+            "<root>/<dataset>/<subject>/<timepoint>/{t1,t1ce,t2,flair,seg}.nii.gz"
+        )
+        st.info(
+            "This viewer does not create the cleaned data. M2-T05 depends on M1-T04. "
+            "Point 'Processed data root' to the folder that contains the cleaned NIfTI files. "
+            "The viewer can search nested folders automatically."
+        )
+        if Path(root).is_dir():
+            segs = list(Path(root).rglob("seg.nii.gz"))
+            if segs:
+                st.warning(
+                    f"Found {len(segs)} seg.nii.gz file(s), but none had all five required files "
+                    "(t1, t1ce, t2, flair, seg) in the same folder."
+                )
+                st.code("\n".join(str(p.parent) for p in segs[:10]))
+            else:
+                st.warning("No seg.nii.gz file was found under this folder. You likely need the M1-T04 processed data.")
         else:
-            st.warning("No seg.nii.gz file was found under this folder. You likely need the M1-T04 processed data.")
-    else:
-        st.warning(f"The selected root does not exist: {root}")
-    st.stop()
+            st.warning(f"The selected root does not exist: {root}")
+        st.stop()
 
-labels = [case.id for case in cases]
-selected_id = st.selectbox("Patient / timepoint", labels)
-case = cases[labels.index(selected_id)]
+    labels = [case.id for case in cases]
+    selected_id = st.selectbox("Patient / timepoint", labels)
+    case = cases[labels.index(selected_id)]
 
-try:
-    shape = validate_case(case)
-except Exception as exc:  # noqa: BLE001 - surface a useful UI error
-    st.error(f"Could not load {case.id}: {exc}")
-    st.stop()
+    try:
+        shape = validate_case(case)
+    except Exception as exc:  # noqa: BLE001 - surface a useful UI error
+        st.error(f"Could not load {case.id}: {exc}")
+        st.stop()
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    modality = st.selectbox("MRI modality", list(MODALITIES), index=3)
-with col2:
-    slice_index = st.slider("Axial slice", 0, shape[2] - 1, shape[2] // 2, 1)
-with col3:
-    st.metric("Volume", f"{shape[0]} × {shape[1]} × {shape[2]}")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        modality = st.selectbox("MRI modality", list(MODALITIES), index=3)
+    with col2:
+        slice_index = st.slider("Axial slice", 0, shape[2] - 1, shape[2] // 2, 1)
+    with col3:
+        st.metric("Volume", f"{shape[0]} × {shape[1]} × {shape[2]}")
 
-image = load_volume(str(_nifti_path(case, modality)))
-mask = load_volume(str(_nifti_path(case, SEG)))
-fig = render_slice(image, mask, slice_index, opacity=opacity, show_mask=show_mask)
-st.pyplot(fig, clear_figure=True, use_container_width=True)
-plt.close(fig)
+    image = load_volume(str(_nifti_path(case, modality)))
+    mask = load_volume(str(_nifti_path(case, SEG)))
+    fig = render_slice(image, mask, slice_index, opacity=opacity, show_mask=show_mask)
+    st.pyplot(fig, clear_figure=True, use_container_width=True)
+    plt.close(fig)
 
-st.caption(_legend_text(mask[:, :, slice_index]))
+    st.caption(_legend_text(mask[:, :, slice_index]))
 
-with st.expander("Case files"):
-    for name in REQUIRED_FILES:
-        st.code(str(_nifti_path(case, name)))
+    with st.expander("Case files"):
+        for name in REQUIRED_FILES:
+            st.code(str(_nifti_path(case, name)))
+
+
+if __name__ == "__main__":
+    main()
