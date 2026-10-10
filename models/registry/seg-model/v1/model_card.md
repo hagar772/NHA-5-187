@@ -38,6 +38,13 @@ Baseline for comparison, 3D U-Net (EXP-0001): mean Dice 0.765. nnU-Net scored hi
 - **Empty predictions.** For ET, 3 validation patients had no predicted region, so HD95 and sensitivity averages skip them (Dice is not affected).
 - **Inference uses mirroring test-time augmentation**, which makes it slower than a single pass.
 - **Not tracked in MLflow.** The nnU-Net run has no MLflow run id; its scores are in `results/M2-T04/`.
+- 
+  ## Approval (M2-T06)
+
+| Name | Role | OK (date) |
+| --- | --- | --- |
+| | | |
+
 
 ## Where things are
 
