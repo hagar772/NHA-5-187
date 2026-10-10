@@ -4,7 +4,9 @@
   "stage": "Selected Model (end of Milestone 2)",
   "task": "M2-T06",
   "source_task": "M2-T04",
-  "framework": "nnU-Net v2 (installed with pip, version not recorded in the notebook)",
+  "framework": "nnU-Net v2",
+  "nnunetv2_version": "2.8.1",
+  "nnunetv2_version_note": "Read with pip show in a fresh Colab on 2026-10-10 after pip install nnunetv2. The training session did not record its version, so this is not confirmed to be the version used for training.",
   "nnunet": {
     "dataset": "Dataset501_BraTS2021",
     "configuration": "3d_fullres",
