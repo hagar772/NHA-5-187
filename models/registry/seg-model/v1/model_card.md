@@ -35,7 +35,7 @@ Baseline for comparison, 3D U-Net (EXP-0001): mean Dice 0.765. nnU-Net scored hi
 - **Short training.** 50 epochs instead of nnU-Net's default 1000; the model was still improving, so this is probably not its ceiling.
 - **Narrow data.** Trained only on BraTS 2021 (pre-treatment adult glioma). Post-treatment scans, other tumor types, children, other scanners or protocols have not been tested. Performance there is unknown and likely lower.
 - **Needs all 4 MRI types** in the exact order above, already cleaned the same way as in M1-T04.
-- **Empty predictions.** For ET, 3 validation patients had no predicted region, so HD95 and sensitivity averages skip them (Dice is not affected).
+- **False enhancing tumor in 3 patients.** 3 validation patients (BraTS2021_01483, 01509, 01535) have no enhancing tumor in the expert mask, but the model predicted some. Their ET Dice is 0 and is included in the ET average (0.872; 0.886 without them). Their ET HD95 and sensitivity are undefined, so those averages leave them out. The model can mark enhancing tumor where there is none.
 - **Inference uses mirroring test-time augmentation**, which makes it slower than a single pass.
 - **Not tracked in MLflow.** The nnU-Net run has no MLflow run id; its scores are in `results/M2-T04/`.
 
