@@ -1,6 +1,9 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
+
+pytest.importorskip("streamlit")  # the viewer needs environment/requirements-viewer.txt
 
 from apps.m2_t05_viewer import Case, discover_cases, normalize_for_display, render_slice
 
